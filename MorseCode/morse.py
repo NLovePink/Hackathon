@@ -1,3 +1,15 @@
+import pygame
+import numpy as np
+import pandas as pd
+import pygame
+import pathlid as Path
+
+df = pd.read_csv(Path(__file__).parent / "odin 2026.csv")
+ph_values = df["VaporPressure"]
+
+
+
+
 #!/usr/bin/env python3
 """Convert text (letters, numbers, punctuation) to Morse code audio (.mp3).
 
