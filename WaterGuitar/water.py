@@ -14,9 +14,9 @@ pygame.mixer.init()
 
 def phToSound(ph):
     if ph <= 5:
-        return   folder /""
+        return   folder /"lofi-guitar-calm_85bpm_C_major.wav"
     elif ph <= 8:
-        return folder/""
+        return folder/"slow-calm-guitar-melody_109bpm_G_major.wav"
     elif ph <= 11:
         return folder/ ""
     elif ph <= 14:

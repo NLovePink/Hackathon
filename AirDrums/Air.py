@@ -6,11 +6,11 @@ folder = Path(__file__).parent
 df = pd.read_csv(folder / "purpleair 2026.csv")
 
 def pm25_values_ToSound(pm25):
-    if pm25 <= 50:
+    if pm25 <= 9.0:
         return folder / "chill-drums_125bpm.wav"
-    elif pm25 <= 150:
+    elif pm25 <= 35.4:
         return folder / "crunchy-loud-drums-loop_138bpm.wav"
-    elif pm25 <= 200:
+    elif pm25 <= 55.4:
         return folder / "in-suspense-moderate-drum-top-loop_C_major.wav"
     else:
         return folder / "11325622-noise-drum-loop-134bpm-245852.mp3"
