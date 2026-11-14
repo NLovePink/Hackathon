@@ -1,15 +1,3 @@
-import pygame
-import numpy as np
-import pandas as pd
-import pygame
-import pathlid as Path
-
-df = pd.read_csv(Path(__file__).parent / "odin 2026.csv")
-ph_values = df["VaporPressure"]
-
-
-
-
 #!/usr/bin/env python3
 """Convert text (letters, numbers, punctuation) to Morse code audio (.mp3).
 
@@ -146,9 +134,33 @@ def write_wav(samples, wav_path):
         wf.writeframes(samples.tobytes())
 
 
+def _find_ffmpeg():
+    """Find the ffmpeg executable. Returns its path, or None if not found.
+    Checks the system PATH first, then common install locations."""
+    # 1. System PATH
+    found = shutil.which("ffmpeg")
+    if found:
+        return found
+    # 2. Common Windows locations (winget installs, manual installs)
+    home = Path.home()
+    winget_dir = (home / "AppData" / "Local" / "Microsoft" /
+                  "WinGet" / "Packages")
+    if winget_dir.is_dir():
+        # winget installs ffmpeg under Gyan.FFmpeg_<source>/ffmpeg-<version>/bin/
+        for ffmpeg_exe in winget_dir.glob(
+                "Gyan.FFmpeg_*/ffmpeg-*/bin/ffmpeg.exe"):
+            if ffmpeg_exe.is_file():
+                return str(ffmpeg_exe)
+    manual = Path("C:/ffmpeg/bin/ffmpeg.exe")
+    if manual.is_file():
+        return str(manual)
+    return None
+
+
 def convert_to_mp3(wav_path, mp3_path):
     """Convert a WAV file to MP3 using ffmpeg."""
-    if shutil.which("ffmpeg") is None:
+    ffmpeg = _find_ffmpeg()
+    if ffmpeg is None:
         raise RuntimeError(
             "ffmpeg was not found on your system. It is needed to make MP3 "
             "files. Install it with one of:\n"
@@ -158,7 +170,7 @@ def convert_to_mp3(wav_path, mp3_path):
             "Then restart your terminal and run this script again."
         )
     result = subprocess.run(
-        ["ffmpeg", "-y", "-v", "error", "-i", str(wav_path), str(mp3_path)],
+        [ffmpeg, "-y", "-v", "error", "-i", str(wav_path), str(mp3_path)],
         capture_output=True, text=True,
     )
     if result.returncode != 0:
