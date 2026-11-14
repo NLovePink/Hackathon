@@ -15,3 +15,16 @@ pygame.mixer.init()
 def phToSound(ph):
     if ph <= 5:
         return   folder /""
+    elif ph <= 8:
+        return folder/""
+    elif ph <= 11:
+        return folder/ ""
+    elif ph <= 14:
+        return folder/""
+    else: return folder/""
+
+for ph in df["ph"]:
+        pygame.mixer.music.load(phToSound(ph))
+        pygame.mixer.music.play()
+        pygame.time.wait(2000)
+        pygame.mixer.music.stop()
