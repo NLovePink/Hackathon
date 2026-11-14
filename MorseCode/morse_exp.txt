@@ -1,0 +1,38 @@
+Here's the full explanation of what the code does, covering the current version including the ffmpeg fix.
+
+What the program does
+morse.py converts data from a CSV file — numbers and words — into Morse code audio saved as an MP3 file. You give it a CSV, pick a column, and it turns those values into beeps.
+
+The pipeline
+It runs in five stages: read the CSV → convert text to Morse code → turn Morse code into sound → save as WAV → convert to MP3.
+
+1. The Morse code table
+MORSE_CODE is a Python dictionary that maps every character to its Morse pattern, following the ITU international standard. It covers letters A–Z, digits 0–9, and punctuation. The period in your VaporPressure values like 4.2 is .-.-.-. So 4 is ....-, and 2 is ..---.
+
+2. Reading the CSV
+csv_to_mp3() opens the file with Python's csv.DictReader, which reads the first row as column names and returns each row as a dictionary. The --column flag picks one column (VaporPressure). The --limit flag controls how many rows to read — important because your file has 140,724 rows and converting all of them would take about 170 hours of audio. The values are joined into one text string with spaces between them.
+
+3. Text to Morse
+text_to_morse() takes that string and returns Morse code. It converts everything to uppercase (Morse has no lowercase), splits the text into words, and looks up each character in the table. Letters within a value are separated by a single space; values are separated by " / ". Any character not in the table is skipped. So 4.2 becomes "....- .-.-.- ..---".
+
+4. Morse to sound — the heart of the program
+This is where Morse code becomes actual audio. Digital audio is a list of numbers called samples — each sample is the height of the sound wave at one instant. The sample rate is 44,100 samples per second (CD quality), so one second of audio is 44,100 numbers.
+A dot or dash is a pure sine wave at 700 Hz. The formula is amplitude × sin(2π × frequency × time). 700 Hz is a clear mid-range beep, the standard pitch for Morse code. The amplitude is 0.5, half volume. Each tone fades in and out over 5 milliseconds so the beep starts and stops cleanly without a click. Silence is just zeros.
+The timing follows the ITU standard, measured in units. One unit is 0.08 seconds (the length of a dot), about 15 words per minute. A dot is 1 unit of tone, a dash is 3 units, the gap between elements in a character is 1 unit of silence, the gap between characters is 3 units, and the gap between values is 7 units.
+morse_to_samples() walks through the Morse string and builds up pieces of tone and silence, then joins them into one long array using Python's array module. The gap math is the fiddly part: after each dot or dash, a 1-unit silence is added. A space adds 2 more units to reach the 3-unit letter gap. A slash adds 2 more to reach the 7-unit word gap, since the spaces around it already contribute.
+
+5. Writing the WAV file
+write_wav() saves the samples as a mono, 16-bit, 44,100 Hz WAV file using Python's built-in wave module. The script writes WAV first because Python's standard library can write WAV natively but cannot write MP3 — that needs an external encoder.
+
+6. Finding ffmpeg and converting to MP3
+This is the part that caused the most trouble during setup. find_ffmpeg() first checks whether ffmpeg is on the system PATH. If it isn't, the script searches common Windows install locations directly — specifically the winget packages folder, looking for any Gyan.FFmpeg* folder containing ffmpeg.exe. It also checks C:\ffmpeg\bin for manual installs.
+Once ffmpeg is found, convert_to_mp3() runs it to convert the WAV to MP3. If ffmpeg isn't found anywhere, the script raises a clear error telling you how to install it. After a successful conversion, the WAV is deleted unless you pass --keep-wav.
+
+7. The command-line interface
+main() uses argparse to read your arguments. It requires two: input (the text or CSV path) and output (the MP3 filename). The optional flags are --csv, --column, --limit, --separator, and --keep-wav. It prints the text, the Morse code, and the output path so you can see what it did.
+
+Worked example: 4.2 from start to finish
+The CSV reader pulls out "4.2". text_to_morse converts it to "....- .-.-.- ..---". morse_to_samples builds about 4 seconds of beeps and silence. write_wav saves it. convert_to_mp3 finds ffmpeg and makes the MP3. For 10 values of 4.2, the total is about 44 seconds.
+
+Why it uses only the standard library
+The script deliberately avoids third-party packages like numpy and pandas. The first version used numpy, but it wasn't installed on your Windows machine. Rewriting with math.sin and the array module removed that dependency — the script runs on any Python 3 installation with no pip installs. The only external tool it needs is ffmpeg, for MP3 encoding.
