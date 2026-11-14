@@ -10,12 +10,10 @@ from pathlib import Path
 
 folder = Path(__file__).parent
 df = pd.read_csv(folder / "alan 2026.csv")
-ph_values = df["Ph"]          # must match the CSV header exactly (case-sensitive)
-
+ph_values = df["Ph"]         
 WINDOW = (800, 600)
 SECONDS_PER_READING = 2
 
-# (max pH, sound file, image file). Fill in the blank ones with your own files.
 RANGES = [
     (5,  "lofi-guitar-calm_85bpm_C_major.wav",       "Images/69d4f553a801270cc080e78402855353.jpg"),
     (8,  "slow-calm-guitar-melody_109bpm_G_major.wav", "Images/fc379ce281f69a164b428c7d5e83b3f8.jpg"),
