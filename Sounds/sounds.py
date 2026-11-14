@@ -1,13 +1,10 @@
 import pygame
 pygame.mixer.init()
-pygame.mixer.music.play()
-
 
 
 class Sounds:
     def __init__(self):
-
-
+        pass
 
 
 class WaterSounds():

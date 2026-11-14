@@ -4,13 +4,15 @@ try:
     pygame = importlib.import_module("pygame")
 except ModuleNotFoundError as exc:
     if exc.name == "pygame":
-        raise SystemExit("pygame is not installed. Install it with: python -m pip install pygame") from exc
+        raise SystemExit("pygame is not installed. Install it with: python -m pip install pygame-ce") from exc
     raise
+import csv
 from pathlib import Path
 
 folder = Path(__file__).parent
-df = pd.read_csv(folder / "alan 2026.csv")
-ph_values = df["Ph"]         
+root = folder.parent
+with open(folder / "alan 2026.csv", newline="") as f:
+    ph_values = [float(row["pH"]) for row in csv.DictReader(f) if row["pH"]]
 WINDOW = (800, 600)
 SECONDS_PER_READING = 2
 
@@ -24,7 +26,13 @@ RANGES = [
 def ph_to_media(ph):
     for max_ph, sound, image in RANGES:
         if ph <= max_ph:
-            return (folder / sound if sound else None), folder / image
+            sound_path = None
+            if sound:
+                # guitar loops live in Sounds/ or the repo root
+                sound_path = root / "Sounds" / sound
+                if not sound_path.exists():
+                    sound_path = root / sound
+            return sound_path, root / image
     return None, None  
 
 def load_fit(path):
