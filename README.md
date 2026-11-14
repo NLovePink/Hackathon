@@ -10,4 +10,5 @@ Where to get it: CSV flat files, every reading to date. Repo link in the Discord
 *Challenge:* Make this data mean something to someone who will never read a chart. Rules: real data only  ·  it has to run live  ·  any language, any tools
 
 **Option A: Sonification**
+
 *Turn the readings into sound: music, drums, a soundscape.*
