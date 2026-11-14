@@ -1,36 +1,11 @@
-import pygame
-import numpy as np
-import pandas as pd
-import pygame
-import pathlid as Path
+import importlib
 
-folder = Path(__file__).parent
-df = pd.read_csv(Path(__file__).parent / "alan 2026.csv")
-ph_values = df["Ph"]
-
-Sample_rate = 44100
-
-pygame.mixer.init()
-
-def phToSound(ph):
-    if ph <= 5:
-        return   folder /"lofi-guitar-calm_85bpm_C_major.wav"
-    elif ph <= 8:
-        return folder/"slow-calm-guitar-melody_109bpm_G_major.wav"
-    elif ph <= 11:
-        return folder/ ""
-    elif ph <= 14:
-        return folder/""
-    else: return folder/""
-
-for ph in df["ph"]:
-        pygame.mixer.music.load(phToSound(ph))
-        pygame.mixer.music.play()
-        pygame.time.wait(2000)
-        pygame.mixer.music.stop()
-
-import pygame
-import pandas as pd
+try:
+    pygame = importlib.import_module("pygame")
+except ModuleNotFoundError as exc:
+    if exc.name == "pygame":
+        raise SystemExit("pygame is not installed. Install it with: python -m pip install pygame") from exc
+    raise
 from pathlib import Path
 
 folder = Path(__file__).parent
@@ -42,17 +17,17 @@ SECONDS_PER_READING = 2
 
 # (max pH, sound file, image file). Fill in the blank ones with your own files.
 RANGES = [
-    (5,  "lofi-guitar-calm_85bpm_C_major.wav",       "ph_low.png"),
-    (8,  "slow-calm-guitar-melody_109bpm_G_major.wav", "ph_neutral.png"),
-    (11, "",                                          "ph_high.png"),
-    (14, "",                                          "ph_very_high.png"),
+    (5,  "lofi-guitar-calm_85bpm_C_major.wav",       "Images/69d4f553a801270cc080e78402855353.jpg"),
+    (8,  "slow-calm-guitar-melody_109bpm_G_major.wav", "Images/fc379ce281f69a164b428c7d5e83b3f8.jpg"),
+    (11, "freesound_community-105-acdc-style-guitar-loop-01-68001.mp3",     "Images/b11444a0ff28f17e1c483437f334ea8e.jpg"),
+    (14, "freesound_community-electric-guitar-metal-riff-107087.mp3",       "Images/fd9f8795efd6783bf45a527789cdf99a.jpg"),
 ]
 
 def ph_to_media(ph):
     for max_ph, sound, image in RANGES:
         if ph <= max_ph:
             return (folder / sound if sound else None), folder / image
-    return None, None   # pH above 14
+    return None, None  
 
 def load_fit(path):
     img = pygame.image.load(path).convert_alpha()
@@ -73,7 +48,6 @@ for ph in ph_values:
     if not running:
         break
 
-    # Only change image and sound when the pH actually changes
     if ph != previous_ph:
         sound, image = ph_to_media(ph)
         print(f"pH changed: {previous_ph} -> {ph}")
@@ -95,7 +69,6 @@ for ph in ph_values:
 
         previous_ph = ph
 
-    # Wait for this reading's time slot, keeping the window responsive
     end_time = pygame.time.get_ticks() + SECONDS_PER_READING * 1000
     while pygame.time.get_ticks() < end_time:
         for event in pygame.event.get():
